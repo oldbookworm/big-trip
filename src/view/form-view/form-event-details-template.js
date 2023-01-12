@@ -1,14 +1,13 @@
-import {createEventOffersTemplate} from '';
-import {createEventDestinationTemplate} from '';
+import {createEventOffersTemplate} from './event-offers-template.js';
+import {createEventDestinationTemplate} from './event-destination-template.js';
 
 export const createEventDetailsTemplate = () => {
 	return (
 	`<section class="event__details">
 
-    // доп предложения
     ${createEventOffersTemplate()}
 
-    // описание направления
     ${createEventDestinationTemplate()}
   </section>`
 );
+  }

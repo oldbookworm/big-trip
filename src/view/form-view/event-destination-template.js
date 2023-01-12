@@ -1,4 +1,4 @@
-import {createEventPhotosTemplate} from '';
+import {createEventPhotosTemplate} from './event-photos-template.js';
 
 export const createEventDestinationTemplate = () => {
 	return (
@@ -6,8 +6,8 @@ export const createEventDestinationTemplate = () => {
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
       <p class="event__destination-description">Chamonix-Mont-Blanc (usually shortened to Chamonix) is a resort area near the junction of France, Switzerland and Italy. At the base of Mont Blanc, the highest summit in the Alps, it's renowned for its skiing.</p>
 
-      <!-- в фоме добавления нового есть блок с фотографиями -->
       ${createEventPhotosTemplate()}
       
     </section>`
-	);	
+	);
+  }	

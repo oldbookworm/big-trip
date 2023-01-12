@@ -1,21 +1,17 @@
-import {createElement} from '../render.js';
+import {createElement} from '../../render.js';
 
 const createEventItemTemplate = () => (
   `<li class="trip-events__item">
     <div class="event">
 
-      // дата события
       <time class="event__date" datetime="2019-03-18">MAR 18</time>
 
-      // иконка события
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
       </div>
 
-      // заголовок события
       <h3 class="event__title">Taxi Amsterdam</h3>
 
-      // время события
       <div class="event__schedule">
         <p class="event__time">
           <time class="event__start-time" datetime="2019-03-18T10:30">10:30</time>
@@ -25,12 +21,10 @@ const createEventItemTemplate = () => (
         <p class="event__duration">30M</p>
       </div>
 
-      // цена события
       <p class="event__price">
         &euro;&nbsp;<span class="event__price-value">20</span>
       </p>
 
-      // специальные предложения
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">
         <li class="event__offer">
@@ -40,7 +34,6 @@ const createEventItemTemplate = () => (
         </li>
       </ul>
 
-      // кнопка-избранное (звездочка)
       <button class="event__favorite-btn event__favorite-btn--active" type="button">
         <span class="visually-hidden">Add to favorite</span>
         <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -48,7 +41,6 @@ const createEventItemTemplate = () => (
         </svg>
       </button>
 
-      // кнопка развернуть
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
       </button>

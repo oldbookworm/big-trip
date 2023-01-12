@@ -3,7 +3,6 @@ export const createFormHeaderTemplate = () => {
 	`<header class="event__header">
     	<div class="event__type-wrapper">
 
-      	<!-- круглая кнопка-выпадашка -->
       	<label class="event__type  event__type-btn" for="event-type-toggle-1">
         	<span class="visually-hidden">Choose event type</span>
         	<img class="event__type-icon" width="17" height="17" src="img/icons/flight.png" alt="Event type icon">
@@ -63,7 +62,7 @@ export const createFormHeaderTemplate = () => {
      	 </div>
     	</div>
 
-    <!-- выпадашка направление -->
+
     <div class="event__field-group  event__field-group--destination">
      	<label class="event__label  event__type-output" for="event-destination-1">
         	Flight
@@ -76,7 +75,7 @@ export const createFormHeaderTemplate = () => {
       	</datalist>
    	</div>
 
-    <!-- ввод даты и времени -->
+    
     <div class="event__field-group  event__field-group--time">
       <label class="visually-hidden" for="event-start-time-1">From</label>
       <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="18/03/19 12:25">
@@ -85,7 +84,6 @@ export const createFormHeaderTemplate = () => {
       <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="18/03/19 13:35">
     </div>
 
-    <!-- инпут цены -->
     <div class="event__field-group  event__field-group--price">
       <label class="event__label" for="event-price-1">
         <span class="visually-hidden">Price</span>
@@ -94,13 +92,8 @@ export const createFormHeaderTemplate = () => {
       <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="160">
     </div>
 
-    <!-- кнопка сохранить -->
     <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
 
-    <!-- кнопка удалить -->
-    <!-- в добавлении нового итема - кнопка Cancel, точно такая же, отличается только надписью на кнопке -->
-
-    <!-- кнопка свернуть-развернуть -->
     <button class="event__rollup-btn" type="button">
       <span class="visually-hidden">Open event</span>
     </button>

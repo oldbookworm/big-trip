@@ -1,15 +1,17 @@
-import {createFormHeaderTemplate} from '';
-import {createEventDetailsTemplate} from '';
-import {createElement} from '../render.js';
+import {createFormHeaderTemplate} from './form-header-template.js';
+import {createEventDetailsTemplate} from './form-event-details-template';
+import {createElement} from '../../render.js';
 
 const createFormPopupTemplate = () => (
-  `<form class="event event--edit" action="#" method="post">
+  `<li class="trip-events__item">
+    <form class="event event--edit" action="#" method="post">
 
   ${createFormHeaderTemplate()}
   
   ${createEventDetailsTemplate()}
 
-</form>`
+    </form> 
+  </li>`
   );
 
 export default class FormPopupView {
