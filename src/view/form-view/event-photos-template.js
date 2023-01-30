@@ -1,13 +1,17 @@
-export const createEventPhotosTemplate = () => {
-	return (
+const createPhotoTemplate = (picture) => {
+  return (
+  `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`
+    );
+}
+
+export const createEventPhotosTemplate = (pictures) => {
+	if(pictures.length !== 0) {
+    return (
 	`<div class="event__photos-container">
         <div class="event__photos-tape">
-          <img class="event__photo" src="img/photos/1.jpg" alt="Event photo">
-          <img class="event__photo" src="img/photos/2.jpg" alt="Event photo">
-          <img class="event__photo" src="img/photos/3.jpg" alt="Event photo">
-          <img class="event__photo" src="img/photos/4.jpg" alt="Event photo">
-          <img class="event__photo" src="img/photos/5.jpg" alt="Event photo">
+          ${pictures.map((picture) => createPhotoTemplate(picture)).join('')};
         </div>
       </div>`
 	);
   }
+};
