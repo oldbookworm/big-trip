@@ -5,7 +5,8 @@ import FormAddNewView from '../view/form-view/form-addnew-view.js';
 import EventsListView from '../view/trip-events-view/events-list-view.js'
 import EventItemView from '../view/trip-events-view/event-item-view.js';
 import EmptyPageView from '../view/empty-page-view.js';
-import {render, RenderPosition} from '../render.js';
+import {render,  RenderPosition, replace, remove} from '../framework/render.js';
+
 
 export default class MainPresenter {
 	#container = null;
@@ -50,11 +51,11 @@ export default class MainPresenter {
 	const formEditComponent = new FormEditView(point);
 
 	const replacePointToForm = () => {
-		this.#eventsListComponent.element.replaceChild(formEditComponent.element, pointComponent.element);
+		replace(formEditComponent, pointComponent);
 	};
   
 	const replaceFormToPoint = () => {
-		this.#eventsListComponent.element.replaceChild(pointComponent.element, formEditComponent.element);
+		replace(pointComponent, formEditComponent);
 	};
 
 	const onEscKeyDown = (evt) => {
@@ -65,18 +66,18 @@ export default class MainPresenter {
 		}
 	};
   
-	pointComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+	pointComponent.setEditClickHandler(() => {
 		replacePointToForm();
 		document.addEventListener('keydown', onEscKeyDown);
 	});
   
-	formEditComponent.element.querySelector('form').addEventListener('submit', (evt) => {
+	formEditComponent.setFormSubmitHandler(() => {
 		evt.preventDefault();
 		replaceFormToPoint();
 		document.removeEventListener('keydown', onEscKeyDown);
 	});
 
-	formEditComponent.element.querySelector('form .event__rollup-btn').addEventListener('click', () => {
+	formEditComponent.setFormCloseBtnClickHandler(() => {
 		replaceFormToPoint();
 	   document.removeEventListener('keydown', onEscKeyDown);
 	});
