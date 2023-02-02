@@ -5,6 +5,7 @@ import FormAddNewView from '../view/form-view/form-addnew-view.js';
 import EventsListView from '../view/trip-events-view/events-list-view.js'
 import EventItemView from '../view/trip-events-view/event-item-view.js';
 import EmptyPageView from '../view/empty-page-view.js';
+import NewEventBtnView from '../view/new-event-btn-view.js';
 import {render,  RenderPosition, replace, remove} from '../framework/render.js';
 
 
@@ -18,6 +19,8 @@ export default class MainPresenter {
 	#sortComponent = new SortView();
 	#emptyPageComponent = new EmptyPageView();
 	#tripInfoComponent = new TripInfoView();
+	#newEventBtnComponent = new NewEventBtnView();
+	#newFormComponent = new FormAddNewView();
 	
 	constructor(container, headerInfoContainer, pointsModel) {
 		this.#container = container;
@@ -32,9 +35,9 @@ export default class MainPresenter {
 	}
 	
 	#renderPointBoard = () => {
+		render(this.#newEventBtnComponent, this.#headerInfoContainer);
     	render(this.#eventsListComponent, this.#container);
 
-    	// итемы
 		if(this.#points.length === 0) {
 			render(this.#emptyPageComponent, this.#container);
 		} else {
@@ -43,8 +46,41 @@ export default class MainPresenter {
 			for (let i = 0; i < this.#points.length; i++) {
 				this.#renderPoint(this.#points[i]);
 			}	
-		}   		
+		}
+		
+		this.#renderAddNewForm();
   };
+
+  
+  #renderAddNewForm = () => {	
+	
+	this.#newEventBtnComponent.setNewBtnClickHandler(() => {
+		render(this.#newFormComponent,  this.#eventsListComponent.element, RenderPosition.AFTERBEGIN);
+
+		this.#newFormComponent.setRollupBtnClickHandler(() => {
+			closeNewForm();
+		});
+
+		this.#newFormComponent.setCancelBtnClickHandler(() => {
+			closeNewForm();
+		});
+
+		document.addEventListener('keydown', closeNewFormOnEsc);
+	});
+
+	const closeNewForm = () => {
+		remove(this.#newFormComponent);
+	}
+
+	const closeNewFormOnEsc = (evt) => {
+		if (evt.key === 'Escape' || evt.key === 'Esc') {
+			evt.preventDefault();
+			remove(this.#newFormComponent);
+			document.removeEventListener('keydown', closeNewFormOnEsc);
+		}
+	}
+  }
+
 
   #renderPoint = (point) => {
     const pointComponent = new EventItemView(point);
@@ -84,5 +120,6 @@ export default class MainPresenter {
 
     render(pointComponent, this.#eventsListComponent.element);
   };
+
 
 }
