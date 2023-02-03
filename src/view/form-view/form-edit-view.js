@@ -1,6 +1,6 @@
 import {createFormHeaderTemplate} from './form-header-template.js';
 import {createEventDetailsTemplate} from './form-event-details-template';
-import {createElement} from '../../render.js';
+import AbstractView from '../../framework/view/abstract-view.js';
 
 const createFormPopupTemplate = (point) => {
 
@@ -17,11 +17,11 @@ const createFormPopupTemplate = (point) => {
   );
 }
 
-export default class FormEditView {
-  #element = null;
+export default class FormEditView extends AbstractView {
   #point = null;
 
   constructor(point) {
+    super();
     this.#point = point;
   }
 
@@ -29,15 +29,24 @@ export default class FormEditView {
     return createFormPopupTemplate(this.#point);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setFormSubmitHandler = (callback) => {
+    this._callback.formSubmit = callback;
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+  };
 
-    return this.#element;
-  }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.formSubmit();
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
+  setFormCloseBtnClickHandler = (callback) => {
+    this._callback.formCloseClick = callback;
+    this.element.querySelector('form .event__rollup-btn').addEventListener('click', this.#formCloseBtnClickHandler);
+  };
+
+  #formCloseBtnClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.formCloseClick();
+  };
+
 }

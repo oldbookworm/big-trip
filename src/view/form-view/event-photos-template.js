@@ -13,5 +13,7 @@ export const createEventPhotosTemplate = (pictures) => {
         </div>
       </div>`
 	);
+  } else {
+    return '';
   }
 };

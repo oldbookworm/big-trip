@@ -27,7 +27,7 @@ export const createEventOffersTemplate = (offers, type) => {
       <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
       <div class="event__available-offers">
-      ${createEventOffer(type, offers)}
+      ${createEventOffer(type, offers).join('')}
       </div>
     </section>`
 	);
