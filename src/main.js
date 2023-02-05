@@ -2,8 +2,7 @@ import FilterView from './view/filter-view.js';
 import PointsModel from './model/points-model.js';
 import MainPresenter from './presenter/main-presenter.js';
 
-
-import {render} from './render.js';
+import {render} from './framework/render.js';
 
 const siteHeaderElement = document.querySelector('.page-header');
 const headerInfoContainer = siteHeaderElement.querySelector('.trip-main');
