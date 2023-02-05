@@ -67,4 +67,6 @@ const getAllOffersIdByType = (type) => {
     return offerById;
   }
 
+
+
 export {getEventDate, getDateDifference, getAllOffersIdByType, getOfferById, beautifyDate};
