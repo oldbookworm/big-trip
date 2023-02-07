@@ -8,34 +8,52 @@ export default class PointPresenter {
     #pointsContainer = null;
     #pointComponent = null;
     #formEditComponent = null;
+    #changeData = null;
     
-    constructor(pointsContainer) {
+    constructor(pointsContainer, changeData) {
       this.#pointsContainer = pointsContainer;
+      this.#changeData = changeData;
     }
     
     init = (point) => {
       this.#point = point;
+
+      const prevPointComponent = this.#pointComponent;
+      const prevFormEditComponent = this.#formEditComponent;
       
       this.#pointComponent = new EventItemView(point);
-        this.#formEditComponent = new FormEditView(point);
+      this.#formEditComponent = new FormEditView(point);
+
+      this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
       
       this.#pointComponent.setEditClickHandler(() => {
             this.#replacePointToForm();
             document.addEventListener('keydown', this.#removeOnEsc);
         });
     
-       this.#formEditComponent.setFormSubmitHandler(() => {
-            evt.preventDefault();
-            this.#replaceFormToPoint();
-            document.removeEventListener('keydown', this.#removeOnEsc);
-       });
+       this.#formEditComponent.setFormSubmitHandler(this.#handleFormSubmit);
   
       this.#formEditComponent.setFormCloseBtnClickHandler(() => {
          this.#replaceFormToPoint();
          document.removeEventListener('keydown', this.#removeOnEsc);
       });
   
-     render(this.#pointComponent, this.#pointsContainer);
+      if (prevPointComponent === null || prevFormEditComponent === null) {
+        render(this.#pointComponent, this.#pointsContainer);
+        return;
+      }
+
+      if (this.#pointsContainer.contains(prevPointComponent.element)) {
+        replace(this.#pointComponent, prevPointComponent);
+      }
+      
+      if (this.#pointsContainer.contains(prevFormEditComponent.element)) {
+        replace(this.#formEditComponent, prevFormEditComponent);
+      }
+
+      remove(prevPointComponent);
+      remove(prevFormEditComponent);
+
     }
     
     #replacePointToForm = () => {
@@ -53,5 +71,22 @@ export default class PointPresenter {
             document.removeEventListener('keydown', this.#removeOnEsc);
           }
       };
+
+    #handleFavoriteClick = () => {
+        this.#changeData({...this.#point, isFavorite: !this.#point.isFavorite});
+    };
+    
+    #handleFormSubmit = (point) => {
+      evt.preventDefault();
+      this.#changeData(point);
+      this.#replaceFormToPoint();
+      document.removeEventListener('keydown', this.#removeOnEsc);     
+   };
+
+    destroy = () => {
+      remove(this.#pointComponent);
+      remove(this.#formEditComponent);
+    };
+    
     
   }
