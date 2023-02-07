@@ -5,6 +5,7 @@ import EmptyPageView from '../view/empty-page-view.js';
 import NewEventBtnView from '../view/new-event-btn-view.js';
 import PointPresenter from './point-presenter.js';
 import NewFormPresenter from './new-form-presenter.js';
+import { updateItem } from '../util.js';
 import {render,  RenderPosition} from '../framework/render.js';
 
 
@@ -19,6 +20,8 @@ export default class MainPresenter {
 	#emptyPageComponent = new EmptyPageView();
 	#tripInfoComponent = new TripInfoView();
 	#newEventBtnComponent = new NewEventBtnView();
+
+	#pointPresenter = new Map();
 	
 	constructor(container, headerInfoContainer, pointsModel) {
 		this.#container = container;
@@ -49,6 +52,11 @@ export default class MainPresenter {
 		});
    };
 
+   #pointChangeHandler = (updatedPoint) => {
+    	this.#points = updateItem(this.#points, updatedPoint);
+    	this.#pointPresenter.get(updatedPoint.id).init(updatedPoint);
+  	};
+
    #renderNewEventBtn = () => {
     	render(this.#newEventBtnComponent, this.#headerInfoContainer);
   	}
@@ -76,8 +84,14 @@ export default class MainPresenter {
 	}
 
   #renderPoint = (point) => {
-    const pointPresenter = new PointPresenter(this.#eventsListComponent.element);
+    const pointPresenter = new PointPresenter(this.#eventsListComponent.element, this.#pointChangeHandler);
    	pointPresenter.init(point);
+	this.#pointPresenter.set(point.id, pointPresenter);
+  };
+
+  #clearPointList = () => {
+    this.#pointPresenter.forEach((presenter) => presenter.destroy());
+    this.#pointPresenter.clear();
   };
 
 
