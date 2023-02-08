@@ -2,6 +2,11 @@ import EventItemView from '../view/trip-events-view/event-item-view.js';
 import FormEditView from '../view/form-view/form-edit-view.js';
 import {render, replace, remove} from '../framework/render.js';
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
 
 export default class PointPresenter {
     #point = null;
@@ -9,10 +14,14 @@ export default class PointPresenter {
     #pointComponent = null;
     #formEditComponent = null;
     #changeData = null;
+    #changeMode = null;
+
+    #mode = Mode.DEFAULT;
     
-    constructor(pointsContainer, changeData) {
+    constructor(pointsContainer, changeData, changeMode) {
       this.#pointsContainer = pointsContainer;
       this.#changeData = changeData;
+      this.#changeMode = changeMode;
     }
     
     init = (point) => {
@@ -43,11 +52,11 @@ export default class PointPresenter {
         return;
       }
 
-      if (this.#pointsContainer.contains(prevPointComponent.element)) {
+      if (this.#mode === Mode.DEFAULT) {
         replace(this.#pointComponent, prevPointComponent);
       }
       
-      if (this.#pointsContainer.contains(prevFormEditComponent.element)) {
+      if (this.#mode === Mode.EDITING) {
         replace(this.#formEditComponent, prevFormEditComponent);
       }
 
@@ -58,10 +67,13 @@ export default class PointPresenter {
     
     #replacePointToForm = () => {
           replace(this.#formEditComponent, this.#pointComponent);
+          this.#changeMode();
+          this.#mode = Mode.EDITING;
       };
     
     #replaceFormToPoint = () => {
           replace(this.#pointComponent, this.#formEditComponent);
+          this.#mode = Mode.DEFAULT;
       };
   
     #removeOnEsc = (evt) => {
@@ -87,6 +99,11 @@ export default class PointPresenter {
       remove(this.#pointComponent);
       remove(this.#formEditComponent);
     };
-    
-    
+
+    resetView = () => {
+      if (this.#mode !== Mode.DEFAULT) {
+        this.#replaceFormToPoint();
+      }
+    };
+     
   }
