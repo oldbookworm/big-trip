@@ -24,14 +24,25 @@ const getEventDate = (data) => {
 }
 
 const getDateDifference = (start, end) => {
-    const date1 = dayjs(start);
-    const date2 = dayjs(end);
+    const fullTime = getDuration(start, end);
 
-    const difference = date2.diff(date1, 'minute');
-    const hours = `${Math.trunc(difference / 60)}H`;
-    const minutes = `${difference % 60}M`;
+    let hours = Math.trunc(fullTime / 60);
+    let days = 0;
+    if(hours > 24){
+      days = Math.trunc(hours / 24);
+      hours = days % 24;
+    }
+    const minutes = fullTime % 60;
 
-    return `${hours == 0 ? '': hours} ${minutes}`;
+    return `${days == 0 ? '': days + 'D'} ${hours == 0 ? '': hours + 'H'} ${minutes + 'M'}`;
+}
+
+const getDuration = (start, end) => {
+  const date1 = dayjs(start);
+  const date2 = dayjs(end);
+
+  const difference = date2.diff(date1, 'minute');
+  return difference;
 }
 
 // красивое отображение даты в попапе
@@ -68,5 +79,42 @@ const getAllOffersIdByType = (type) => {
   }
 
 
+  // функция отслеживания обновлений
 
-export {getEventDate, getDateDifference, getAllOffersIdByType, getOfferById, beautifyDate};
+  const updateItem = (items, update) => {
+    const index = items.findIndex((item) => item.id === update.id);
+  
+    if (index === -1) {
+      return items;
+    }
+  
+    return [
+      ...items.slice(0, index),
+      update,
+      ...items.slice(index + 1),
+    ];
+  };
+
+
+  // сортировка
+
+  const SORT_TYPE = {
+    DEFAULT: 'default',
+    PRICE: 'price',
+    TIME: 'time',
+  };
+
+  const sortByTime = (pointA, pointB) => {
+    const paramA = getDuration(pointA.dateFrom, pointA.dateTo);
+    const paramB = getDuration(pointB.dateFrom, pointB.dateTo);
+    
+    return paramB - paramA;
+  }
+
+  const sortByPrice = (pointA, pointB) => {  
+    return pointB.basePrice - pointA.basePrice;
+  }
+  
+
+
+export {getEventDate, getDateDifference, getAllOffersIdByType, getOfferById, beautifyDate, updateItem, SORT_TYPE, sortByTime, sortByPrice};
