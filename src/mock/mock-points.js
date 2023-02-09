@@ -1,6 +1,6 @@
 import { getRandomArrayElement, getRandomInteger, getRandomArray } from "./mock-util";
 import { OFFER_BY_TYPE, CITIES, PICS_DESCRIPTION, POINTS_COUNT, POINT_TYPE, getPointDescription} from "./mock-data";
-import { getAllOffersByType } from "../util";
+import { getAllOffersIdByType } from "../util";
 
 
 const generateDestinationPics = () => {
@@ -27,17 +27,6 @@ const generateDestinationPics = () => {
   }
 
 
-  // const getOffers = (type) => {
-  //   const offers = [];
-    
-  //   for (const offer of OFFER_BY_TYPE) {
-  //     if(offer.type === type) {
-  //      offers.push(... offer.offers);
-  //     }
-  //   }
-  //   return offers;
-  // }
- 
   // Функция получающая массив рандомных офферов на основании массива всех офферов
   const getRandomOffers = (arr) => {
     let randomOffers = [];
@@ -57,12 +46,12 @@ const generateDestinationPics = () => {
       
       return {
         basePrice: getRandomInteger(10, 200),
-        dateFrom: '2023-07-10T22:55:56.845Z',
-        dateTo: "2023-07-11T11:22:13.375Z",
+        dateFrom: `2023-07-${getRandomInteger(10, 15)}T22:55:56.845Z`,
+        dateTo: `2023-07-${getRandomInteger(15, 30)}T11:22:13.375Z`,
         destination: generateDestination(),
         id: index + 1,
         isFavorite: Boolean(getRandomInteger(0, 1)),
-        offers: getRandomOffers(getAllOffersByType(pointType)),
+        offers: getRandomOffers(getAllOffersIdByType(pointType)),
         type:  pointType,     
        }
     });
