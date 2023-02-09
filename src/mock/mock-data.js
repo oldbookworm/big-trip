@@ -174,7 +174,7 @@ const OFFER_BY_TYPE = [
     ];
   
   
-  const CITIES = ['London', 'Paris', 'Berlin', 'Vienna', 'Beijing', 'Tallinn', 'Tbilisi', 'Dublin', 'Rome', "Tokyo"];
+  const CITIES = ['Amsterdam', 'Geneva', 'Chamonix'];
   const PICS_DESCRIPTION = [
     'Parliament building',
     'Main street',
