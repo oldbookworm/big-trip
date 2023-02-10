@@ -33,6 +33,26 @@ const getRandomArray = (arr, maxLength) => {
     return newArr;
 };
 
+const getRandomDates = (count) => {
+  const randomDates = [];
+  let temporary = 0;
+  
+  for(let i = 0; i < count; i++){
+    let fromDate = temporary + getRandomInteger(0, 5);
+    let toDate = fromDate + getRandomInteger(0, 5);
+    let datePoint = {
+      fromDate: fromDate,
+      toDate: toDate
+    }
+    
+    randomDates.push(datePoint);
+    temporary = toDate;
+    if(temporary > 31) {
+      temporary = 0;
+    }
+  }
+  return randomDates;
+}
 
 
-  export {getRandomInteger, getRandomArrayElement, getRandomArray};
+  export {getRandomInteger, getRandomArrayElement, getRandomArray, getRandomDates};
