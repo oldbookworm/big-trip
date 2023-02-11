@@ -1,4 +1,4 @@
-import { getRandomArrayElement, getRandomInteger, getRandomArray } from "./mock-util";
+import { getRandomArrayElement, getRandomInteger, getRandomArray, getRandomDates } from "./mock-util";
 import { OFFER_BY_TYPE, CITIES, PICS_DESCRIPTION, POINTS_COUNT, POINT_TYPE, getPointDescription} from "./mock-data";
 import { getAllOffersIdByType } from "../util";
 
@@ -37,17 +37,23 @@ const generateDestinationPics = () => {
     return randomOffers;
   }
 
+  // массив с рандомными датами
+  const mockDatesArr = getRandomDates(POINTS_COUNT);
+
   
   export const generatePoints = () => {
     const points = Array.from({length: POINTS_COUNT});
     
     return points.map((point, index) => {
       const pointType = getRandomArrayElement(POINT_TYPE);
+      const {fromDate, toDate} = mockDatesArr[index];
+      // toDate.length < 1 ? '0' + toDate : toDate;
+      // fromDate.length < 1 ? '0' + fromDate : fromDate;
       
       return {
         basePrice: getRandomInteger(10, 200),
-        dateFrom: `2023-07-${getRandomInteger(10, 15)}T22:55:56.845Z`,
-        dateTo: `2023-07-${getRandomInteger(15, 30)}T11:22:13.375Z`,
+        dateFrom: `2023-07-${fromDate}T22:55:56.845Z`,
+        dateTo: `2023-07-${toDate}T11:22:13.375Z`,
         destination: generateDestination(),
         id: index + 1,
         isFavorite: Boolean(getRandomInteger(0, 1)),
