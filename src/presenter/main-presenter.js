@@ -5,7 +5,8 @@ import EmptyPageView from '../view/empty-page-view.js';
 import NewEventBtnView from '../view/new-event-btn-view.js';
 import PointPresenter from './point-presenter.js';
 import NewFormPresenter from './new-form-presenter.js';
-import { updateItem } from '../util.js';
+import { updateItem } from '../util/main-util.js';
+import { SORT_TYPE, sortByTime, sortByPrice } from '../util/sort-util.js';
 import {render,  RenderPosition} from '../framework/render.js';
 
 
@@ -22,6 +23,8 @@ export default class MainPresenter {
 	#newEventBtnComponent = new NewEventBtnView();
 
 	#pointPresenter = new Map();
+	#currentSortType = SORT_TYPE.DEFAULT;
+	#sourcedPoints = [];
 	
 	constructor(container, headerInfoContainer, pointsModel) {
 		this.#container = container;
@@ -31,6 +34,7 @@ export default class MainPresenter {
 
 	init = () => {	
 		this.#points = [...this.#pointsModel.points];
+		this.#sourcedPoints = [...this.#pointsModel.points];
 		this.#renderPointBoard();
 	}
 	
@@ -61,6 +65,15 @@ export default class MainPresenter {
 		this.#pointPresenter.forEach((presenter) => presenter.resetView());
 	};
 
+	#handleSortTypeChange = (sortType) => {
+		if (this.#currentSortType === sortType) {
+			return;
+		}
+		this.#sortPoints(sortType);
+		this.#clearPointList();
+		this.#renderPoints();
+	};
+
    #renderNewEventBtn = () => {
     	render(this.#newEventBtnComponent, this.#headerInfoContainer);
   	}
@@ -79,6 +92,7 @@ export default class MainPresenter {
 	
 	#renderSort = () => {
 		render(this.#sortComponent, this.#container, RenderPosition.AFTERBEGIN);
+		this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
 	}
 	  
 	#renderPoints = () => {
@@ -96,6 +110,21 @@ export default class MainPresenter {
   #clearPointList = () => {
     this.#pointPresenter.forEach((presenter) => presenter.destroy());
     this.#pointPresenter.clear();
+  };
+
+  #sortPoints = (sortType) => {
+    switch (sortType) {
+      case SORT_TYPE.TIME:
+        this.#points.sort(sortByTime);
+        break;
+      case SORT_TYPE.PRICE:
+        this.#points.sort(sortByPrice);
+        break;
+      default:
+        this.#points = [...this.#sourcedPoints];
+    }
+
+    this.#currentSortType = sortType;
   };
 
 
