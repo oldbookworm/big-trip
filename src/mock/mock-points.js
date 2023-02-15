@@ -1,6 +1,6 @@
 import { getRandomArrayElement, getRandomInteger, getRandomArray, getRandomDates } from "./mock-util";
-import { OFFER_BY_TYPE, CITIES, PICS_DESCRIPTION, POINTS_COUNT, POINT_TYPE, getPointDescription} from "./mock-data";
-import { getAllOffersIdByType } from "../util";
+import { CITIES, PICS_DESCRIPTION, POINTS_COUNT, POINT_TYPE, getPointDescription} from "./mock-data";
+import { getAllOffersIdByType } from "../util/offers-util";
 
 
 const generateDestinationPics = () => {
@@ -46,14 +46,14 @@ const generateDestinationPics = () => {
     
     return points.map((point, index) => {
       const pointType = getRandomArrayElement(POINT_TYPE);
-      const {fromDate, toDate} = mockDatesArr[index];
-      // toDate.length < 1 ? '0' + toDate : toDate;
-      // fromDate.length < 1 ? '0' + fromDate : fromDate;
+      // let {fromDate, toDate} = mockDatesArr[index];
+      // toDate < 10 ? toDate = '0' + toDate : toDate;
+      // fromDate < 10 ? fromDate = '0' + fromDate : fromDate;
       
       return {
         basePrice: getRandomInteger(10, 200),
-        dateFrom: `2023-07-${fromDate}T22:55:56.845Z`,
-        dateTo: `2023-07-${toDate}T11:22:13.375Z`,
+        dateFrom: `2023-07-11T22:55:56.845Z`,
+        dateTo: `2023-07-12T11:22:13.375Z`,
         destination: generateDestination(),
         id: index + 1,
         isFavorite: Boolean(getRandomInteger(0, 1)),
