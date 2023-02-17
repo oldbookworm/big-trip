@@ -25,6 +25,8 @@ export default class MainPresenter {
 	#pointPresenter = new Map();
 	#currentSortType = SORT_TYPE.DEFAULT;
 	#sourcedPoints = [];
+	#newFormPresenter = null;
+
 	
 	constructor(container, headerInfoContainer, pointsModel) {
 		this.#container = container;
@@ -38,6 +40,7 @@ export default class MainPresenter {
 		this.#renderPointBoard();
 	}
 	
+	// рендерит основу страницы
 	#renderPointBoard = () => {
 		this.#renderNewEventBtn();
     	this.#renderEventsList();
@@ -50,21 +53,21 @@ export default class MainPresenter {
 			this.#renderPoints();
 		}		
 		
-		this.#newEventBtnComponent.setNewBtnClickHandler(() => {
-			const newFormPresenter = new NewFormPresenter(this.#eventsListComponent.element);
-			newFormPresenter.init();
-		});
+		this.#newEventBtnComponent.setNewBtnClickHandler(this.#addNewForm);
    };
 
+//    обновление пойнта
    #pointChangeHandler = (updatedPoint) => {
     	this.#points = updateItem(this.#points, updatedPoint);
     	this.#pointPresenter.get(updatedPoint.id).init(updatedPoint);
   	};
 
+	// смена мода для сортировки
 	#handleModeChange = () => {
 		this.#pointPresenter.forEach((presenter) => presenter.resetView());
 	};
 
+	// сортировка
 	#handleSortTypeChange = (sortType) => {
 		if (this.#currentSortType === sortType) {
 			return;
@@ -74,6 +77,30 @@ export default class MainPresenter {
 		this.#renderPoints();
 	};
 
+	// открытие формы add new
+	#addNewForm = () => {
+		if(!this.#newFormPresenter) {
+			this.#newFormPresenter = new NewFormPresenter(this.#eventsListComponent.element, this.#removeNewForm, this.#removeOnEsc);
+		}
+		this.#newFormPresenter.init();
+	  }
+	
+	// закрытие формы add new
+	#removeNewForm = () => {
+		this.#newFormPresenter.destroy();
+		this.#newFormPresenter = null;
+	}
+	
+	#removeOnEsc = (evt) => {
+		if (evt.key === 'Escape' || evt.key === 'Esc') {
+			evt.preventDefault();
+			this.#removeNewForm();
+			document.removeEventListener('keydown', this.#removeOnEsc);
+		}
+	}
+
+
+	// рендер простых элементов
    #renderNewEventBtn = () => {
     	render(this.#newEventBtnComponent, this.#headerInfoContainer);
   	}
@@ -101,30 +128,34 @@ export default class MainPresenter {
 		}	
 	}
 
-  #renderPoint = (point) => {
-    const pointPresenter = new PointPresenter(this.#eventsListComponent.element, this.#pointChangeHandler, this.#handleModeChange);
-   	pointPresenter.init(point);
-	this.#pointPresenter.set(point.id, pointPresenter);
-  };
+	// создание презентера пойнта
+	#renderPoint = (point) => {
+    	const pointPresenter = new PointPresenter(this.#eventsListComponent.element, this.#pointChangeHandler, this.#handleModeChange);
+   		pointPresenter.init(point);
+		this.#pointPresenter.set(point.id, pointPresenter);
+  	};
 
-  #clearPointList = () => {
-    this.#pointPresenter.forEach((presenter) => presenter.destroy());
-    this.#pointPresenter.clear();
-  };
+	// удалить все презентеры пойнтов
+  	#clearPointList = () => {
+   	 	this.#pointPresenter.forEach((presenter) => presenter.destroy());
+    	this.#pointPresenter.clear();
+  	};
 
-  #sortPoints = (sortType) => {
-    switch (sortType) {
-      case SORT_TYPE.TIME:
-        this.#points.sort(sortByTime);
-        break;
-      case SORT_TYPE.PRICE:
-        this.#points.sort(sortByPrice);
-        break;
-      default:
-        this.#points = [...this.#sourcedPoints];
-    }
 
-    this.#currentSortType = sortType;
+	// смена типа сортировки
+  	#sortPoints = (sortType) => {
+   	 switch (sortType) {
+      	case SORT_TYPE.TIME:
+        	this.#points.sort(sortByTime);
+        	break;
+      	case SORT_TYPE.PRICE:
+        	this.#points.sort(sortByPrice);
+        	break;
+      	default:
+        	this.#points = [...this.#sourcedPoints];
+    	}
+
+    	this.#currentSortType = sortType;
   };
 
 
