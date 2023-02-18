@@ -1,45 +1,54 @@
 import FormAddNewView from '../view/form-view/form-addnew-view.js';
-import {render,  RenderPosition, remove} from '../framework/render.js';
+import {render,  RenderPosition, replace, remove} from '../framework/render.js';
 
 export default class NewFormPresenter {
     #newFormContainer = null;
     #newFormComponent = null;
+    #closeNewFormHandler = null;
+    #closeOnEscHandler = null;
     
-    constructor(newFormContainer) {
+    constructor(newFormContainer, closeNewFormHandler, closeOnEscHandler) {
       this.#newFormContainer = newFormContainer;
+      this.#closeNewFormHandler = closeNewFormHandler;
+      this.#closeOnEscHandler = closeOnEscHandler;
     }
     
     init = () => {
-      this.#newFormComponent = new FormAddNewView();
-      this.#renderNewForm();
-      
+
+    const prevNewFormComponent = this.#newFormComponent; 
+    this.#newFormComponent = new FormAddNewView(); 
+     
      this.#newFormComponent.setRollupBtnClickHandler(() => {
-        this.#closeNewForm();
-        document.removeEventListener('keydown', this.#closeNewFormOnEsc);
+        this.#closeNewFormHandler();
+        document.removeEventListener('keydown', this.#closeOnEscHandler);
       });
   
      this.#newFormComponent.setCancelBtnClickHandler(() => {
-        this.#closeNewForm();
-        document.removeEventListener('keydown', this.#closeNewFormOnEsc);
+        this.#closeNewFormHandler();
+        document.removeEventListener('keydown', this.#closeOnEscHandler);
      });
       
-      document.addEventListener('keydown', this.#closeNewFormOnEsc);
-    }
+    document.addEventListener('keydown', this.#closeOnEscHandler);
+
     
-    #renderNewForm = () => {
-      render(this.#newFormComponent,  this.#newFormContainer, RenderPosition.AFTERBEGIN);
+    if(prevNewFormComponent === null) {
+      this.#renderNewForm();
+      return;
     }
+
+    replace(this.#newFormComponent, prevNewFormComponent);
+
+    remove(prevNewFormComponent);
     
-    #closeNewForm = () => {
+  }
+    
+
+  #renderNewForm = () => {
+      render(this.#newFormComponent,  this.#newFormContainer, RenderPosition.AFTERBEGIN);        
+  }
+
+  destroy = () => {
       remove(this.#newFormComponent);
-      document.removeEventListener('keydown', this.#closeNewFormOnEsc);
-    }
+  };
     
-    #closeNewFormOnEsc = (evt) => {
-        if (evt.key === 'Escape' || evt.key === 'Esc') {
-            evt.preventDefault();
-            remove(this.#newFormComponent);
-            document.removeEventListener('keydown', this.#closeNewFormOnEsc);
-        }
-    }  
   } 
