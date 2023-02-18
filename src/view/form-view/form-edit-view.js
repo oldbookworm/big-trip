@@ -1,6 +1,6 @@
 import {createFormHeaderTemplate} from './form-header-template.js';
 import {createEventDetailsTemplate} from './form-event-details-template';
-import AbstractView from '../../framework/view/abstract-view.js';
+import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
 
 const createFormPopupTemplate = (point) => {
 
@@ -17,26 +17,27 @@ const createFormPopupTemplate = (point) => {
   );
 }
 
-export default class FormEditView extends AbstractView {
+export default class FormEditView extends AbstractStatefulView {
   #point = null;
 
   constructor(point) {
     super();
-    this.#point = point;
+    this._state = FormEditView.parsePointToState(point);
+    this.#setInnerHandlers();
   }
 
   get template() {
-    return createFormPopupTemplate(this.#point);
+    return createFormPopupTemplate(this._state);
   }
 
   setFormSubmitHandler = (callback) => {
     this._callback.formSubmit = callback;
-    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('form .event__save-btn').addEventListener('submit', this.#formSubmitHandler);
   };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit();
+    this._callback.formSubmit(FormEditView.parseStateToPoint(this._state));
   };
 
   setFormCloseBtnClickHandler = (callback) => {
@@ -48,5 +49,32 @@ export default class FormEditView extends AbstractView {
     evt.preventDefault();
     this._callback.formCloseClick();
   };
+
+  #setInnerHandlers = () => {
+    this.element.querySelectorAll('.event__type-item').forEach((elem) => {
+	    elem.addEventListener('click', this.#eventTypeChangeHandler);
+    });
+  }
+
+
+  #eventTypeChangeHandler = (evt) => {
+    this.updateElement({
+      type: evt.currentTarget.querySelector('input').value,
+    });
+  };
+
+
+  static parsePointToState = (point) => ({...point});
+
+  static parseStateToPoint = (state) => {
+    const point = {...point};
+    return point;
+  };
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setFormCloseBtnClickHandler(this._callback.formCloseClick);	
+   };
 
 }
