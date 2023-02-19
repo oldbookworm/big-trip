@@ -1,3 +1,5 @@
+import { getRandomArrayElement, getRandomInteger } from "./mock-util";
+
 const OFFER_BY_TYPE = [
     {
       type: 'taxi',
@@ -172,17 +174,50 @@ const OFFER_BY_TYPE = [
   ]
      },
     ];
+
+
+    const PICS_DESCRIPTION = [
+      'Parliament building',
+      'Main street',
+      'Beautiful view',
+      'A popular tourist attraction',
+      'Urban area',
+      'Architectural heritage'
+    ];
+
+    const generateDestinationPics = () => {
+      let pics = [];
+      let picsCount = getRandomInteger(1, 5);
+      
+      for (let i = 0; i < picsCount; i++) {
+        let pic = {
+          src: `http://picsum.photos/248/152?r=${getRandomInteger(1, 10)}`,
+          description: getRandomArrayElement(PICS_DESCRIPTION),   
+        }
+        pics.push(pic);
+      }
+      return pics;
+    };
+
   
+    const DESTINATIONS = [
+      {
+        description: 'Amsterdam is the capital and most populous city of the Netherlands. Primarily known for its artistic heritage, elaborate canal system and narrow canal houses with gabled facades; well-preserved legacies of the citys 17th-century Golden Age, and the establishment of the Van Gogh Museum, displaying the work of the famous Dutch modern artist, have attracted millions of visitors to Amsterdam annually',
+        name: 'Amsterdam',
+        pictures: generateDestinationPics(),
+      },
+      {
+        description: 'Geneva is the second-most populous city in Switzerland (after Zurich) and the most populous city of Romandy, the French-speaking part of Switzerland. Geneva is a global city, a financial centre, and a worldwide centre for diplomacy due to the presence of numerous international organizations, including the headquarters of many agencies of the United Nations and the Red Cross. Geneva hosts the highest number of international organizations in the world.',
+        name: 'Geneva',
+        pictures: generateDestinationPics(),
+      },
+      {
+        description: 'Situated to the north of Mont Blanc, between the peaks of the Aiguilles Rouges and the notable Aiguille du Midi, Chamonix is one of the oldest ski resorts in France. The Chamonix commune is popular with skiers and mountain enthusiasts.',
+        name: 'Chamonix',
+        pictures: generateDestinationPics(),
+      }
+    ];  
   
-  const CITIES = ['Amsterdam', 'Geneva', 'Chamonix'];
-  const PICS_DESCRIPTION = [
-    'Parliament building',
-    'Main street',
-    'Beautiful view',
-    'A popular tourist attraction',
-    'Urban area',
-    'Architectural heritage'
-  ];
   
   const POINTS_COUNT = 5;
   const POINT_TYPE = ["taxi", "bus", "train", "ship", "drive", "flight", "check-in", "sightseeing", "restaurant"];
@@ -191,5 +226,6 @@ const OFFER_BY_TYPE = [
     return "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante."
   };
 
+  
 
-  export {OFFER_BY_TYPE, CITIES, PICS_DESCRIPTION, POINTS_COUNT, POINT_TYPE, getPointDescription};
+  export {OFFER_BY_TYPE, PICS_DESCRIPTION, POINTS_COUNT, POINT_TYPE, DESTINATIONS, getPointDescription};
