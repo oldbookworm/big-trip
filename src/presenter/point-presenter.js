@@ -42,10 +42,9 @@ export default class PointPresenter {
     
        this.#formEditComponent.setFormSubmitHandler(this.#handleFormSubmit);
   
-      this.#formEditComponent.setFormCloseBtnClickHandler(() => {
-         this.#replaceFormToPoint();
-         document.removeEventListener('keydown', this.#removeOnEsc);
-      });
+      this.#formEditComponent.setFormCloseBtnClickHandler(this.#handleCloseForm);
+
+      this.#formEditComponent.setDeleteBtnClickHandler(this.#handleCloseForm);
   
       if (prevPointComponent === null || prevFormEditComponent === null) {
         render(this.#pointComponent, this.#pointsContainer);
@@ -79,8 +78,8 @@ export default class PointPresenter {
     #removeOnEsc = (evt) => {
           if (evt.key === 'Escape' || evt.key === 'Esc') {
             evt.preventDefault();
-            this.#replaceFormToPoint();
-            document.removeEventListener('keydown', this.#removeOnEsc);
+            this.#formEditComponent.reset(this.#point);
+            this.#handleCloseForm();
           }
       };
 
@@ -91,9 +90,13 @@ export default class PointPresenter {
     #handleFormSubmit = (point) => {
       evt.preventDefault();
       this.#changeData(point);
-      this.#replaceFormToPoint();
-      document.removeEventListener('keydown', this.#removeOnEsc);     
+      this.#handleCloseForm();    
    };
+
+   #handleCloseForm = () => {
+      this.#replaceFormToPoint();
+      document.removeEventListener('keydown', this.#removeOnEsc);
+    }
 
     destroy = () => {
       remove(this.#pointComponent);
@@ -102,6 +105,7 @@ export default class PointPresenter {
 
     resetView = () => {
       if (this.#mode !== Mode.DEFAULT) {
+        this.#formEditComponent.reset(this.#point);
         this.#replaceFormToPoint();
       }
     };
