@@ -92,7 +92,7 @@ const getDuration = (start, end) => {
 
 // красивое отображение даты в попапе
 const beautifyPopupDate = (data) => {
-    const date = `${getYear(data)}/${getMonth(data)}/${getDay(data)}`;
+    const date = `${getDay(data)}/${getMonth(data)}/${getYear(data)}`;
     const time = getTime(data);
     return `${date} ${time}`
 }
