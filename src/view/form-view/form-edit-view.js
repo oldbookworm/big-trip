@@ -1,6 +1,11 @@
 import {createFormHeaderTemplate} from './form-header-template.js';
 import {createEventDetailsTemplate} from './form-event-details-template';
+import { DESTINATIONS } from '../../mock/mock-data.js';
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
+
+import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 const createFormPopupTemplate = (point) => {
 
@@ -18,17 +23,33 @@ const createFormPopupTemplate = (point) => {
 }
 
 export default class FormEditView extends AbstractStatefulView {
-  #point = null;
+  #datepicker = null;
 
   constructor(point) {
     super();
     this._state = FormEditView.parsePointToState(point);
     this.#setInnerHandlers();
+    this.#setDatepicker();
   }
 
   get template() {
     return createFormPopupTemplate(this._state);
   }
+
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#datepicker) {
+      this.#datepicker.destroy();
+      this.#datepicker = null;
+    }
+  };
+
+  reset = (point) => {
+    this.updateElement(
+      FormEditView.parsePointToState(point),
+    );
+  };
 
   setFormSubmitHandler = (callback) => {
     this._callback.formSubmit = callback;
@@ -50,16 +71,70 @@ export default class FormEditView extends AbstractStatefulView {
     this._callback.formCloseClick();
   };
 
+  setDeleteBtnClickHandler = (callback) => {
+    this._callback.deleteBtnClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteBtnClickHandler);
+  };
+
+  #deleteBtnClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.deleteBtnClick();
+  };
+
+  #dueDateChangeHandler = (start, end) => {
+    this.updateElement({
+      dateFrom: start.toISOString(),
+      dateTo: end.toISOString(),
+    });
+  };
+
+  #setDatepicker = () => {
+    const endDateInput = this.element.querySelector('#event-end-time-1');
+
+    this.#datepicker = flatpickr(
+        this.element.querySelector('#event-start-time-1'),
+        {
+          plugins: [new rangePlugin({ input: endDateInput})],
+          mode: "range",
+          dateFormat: 'd/m/Y H:i',
+          enableTime: true,
+          time_24hr: true,
+          onClose: (dates) => {
+            if (dates.length == 2) {
+                this.#dueDateChangeHandler(dates[0], dates[1]);
+            } 
+          },
+        }
+      );   
+  };
+
+
+
+
   #setInnerHandlers = () => {
     this.element.querySelectorAll('.event__type-item').forEach((elem) => {
 	    elem.addEventListener('click', this.#eventTypeChangeHandler);
     });
+
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#eventDestinationChangeHandler);
   }
 
 
   #eventTypeChangeHandler = (evt) => {
     this.updateElement({
       type: evt.currentTarget.querySelector('input').value,
+    });
+  };
+
+  #eventDestinationChangeHandler = (evt) => {
+    const newDestination = DESTINATIONS.find((elem) => elem.name === evt.target.value);
+    
+    this.updateElement({
+      destination: {
+        name: newDestination.name,
+        description: newDestination.description,
+        pictures: newDestination.pictures, 	
+      },
     });
   };
 
@@ -73,8 +148,10 @@ export default class FormEditView extends AbstractStatefulView {
 
   _restoreHandlers = () => {
     this.#setInnerHandlers();
+    this.#setDatepicker();
     this.setFormSubmitHandler(this._callback.formSubmit);
-    this.setFormCloseBtnClickHandler(this._callback.formCloseClick);	
-   };
+    this.setFormCloseBtnClickHandler(this._callback.formCloseClick);
+    this.setDeleteBtnClickHandler(this._callback.deleteBtnClick);	
+   };  
 
 }
