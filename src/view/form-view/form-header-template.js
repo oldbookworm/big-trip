@@ -1,4 +1,4 @@
-import { beautifyDate } from "../../util";
+import { beautifyPopupDate } from "../../util/date-util";
 
 
 export const createFormHeaderTemplate = (point, btn) => {
@@ -84,10 +84,12 @@ export const createFormHeaderTemplate = (point, btn) => {
     
     <div class="event__field-group  event__field-group--time">
       <label class="visually-hidden" for="event-start-time-1">From</label>
-      <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${beautifyDate(dateFrom)}">
+      <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${beautifyPopupDate(dateFrom)}">
+      &nbsp;
       &mdash;
+      &nbsp;
       <label class="visually-hidden" for="event-end-time-1">To</label>
-      <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${beautifyDate(dateTo)}">
+      <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${beautifyPopupDate(dateTo)}">
     </div>
 
     <div class="event__field-group  event__field-group--price">
