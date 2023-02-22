@@ -1,16 +1,17 @@
 import {createFormHeaderTemplate} from './form-header-template.js';
 import {createEventDetailsTemplate} from './form-event-details-template';
-import AbstractView from '../../framework/view/abstract-view.js';
+import { DESTINATIONS } from '../../mock/mock-data.js';
+import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
+
+import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 const BASIC_POINT = {
   basePrice: '',
   dateFrom: '2023-07-10T22:55:56.845Z',
   dateTo: "2023-07-11T11:22:13.375Z",
-  destination: {
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget.',
-    name: 'Amsterdam',
-    pictures: [],
-  },
+  destination: DESTINATIONS[0],
   id: 1,
   offers: [],
   type:  'taxi',     
@@ -31,16 +32,18 @@ const createFormPopupTemplate = (point) => (
 
 
 
-export default class FormAddNewView extends AbstractView {
-  #point = null;
-
+export default class FormAddNewView extends AbstractStatefulView {
+  #datepicker = null;
+  
   constructor(point = BASIC_POINT) {
     super();
-    this.#point = point;
+    this._state = FormAddNewView.parsePointToState(point);
+    this.#setInnerHandlers();
+    this.#setDatepicker();
   }
 
   get template() {
-    return createFormPopupTemplate(this.#point);
+    return createFormPopupTemplate(this._state);
   }
 
   setRollupBtnClickHandler = (callback) => {
@@ -62,5 +65,72 @@ export default class FormAddNewView extends AbstractView {
     evt.preventDefault();
     this._callback.cancelBtnClick();
   };
+
+  #dueDateChangeHandler = (start, end) => {
+    this.updateElement({
+      dateFrom: start.toISOString(),
+      dateTo: end.toISOString(),
+    });
+  };
+
+  #setDatepicker = () => {
+    const endDateInput = this.element.querySelector('#event-end-time-1');
+    
+    this.#datepicker = flatpickr(
+        this.element.querySelector('#event-start-time-1'),
+        {
+          plugins: [new rangePlugin({ input: endDateInput})],
+          mode: "range",
+          dateFormat: 'd/m/Y H:i',
+          enableTime: true,
+          time_24hr: true,
+          onClose: (dates) => {
+            if (dates.length == 2) {
+                this.#dueDateChangeHandler(dates[0], dates[1]);
+            } 
+          },
+        }
+      );   
+  };
+
+  #setInnerHandlers = () => {
+    this.element.querySelectorAll('.event__type-item').forEach((elem) => {
+	    elem.addEventListener('click', this.#eventTypeChangeHandler);
+    });
+
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#eventDestinationChangeHandler);
+  }
+
+  #eventTypeChangeHandler = (evt) => {
+    this.updateElement({
+      type: evt.currentTarget.querySelector('input').value,
+    });
+  };
+
+  #eventDestinationChangeHandler = (evt) => {
+    const newDestination = DESTINATIONS.find((elem) => elem.name === evt.target.value);
+    
+    this.updateElement({
+      destination: {
+        name: newDestination.name,
+        description: newDestination.description,
+        pictures: newDestination.pictures, 	
+      },
+    });
+  };
+
+  static parsePointToState = (point) => ({...point});
+
+  static parseStateToPoint = (state) => {
+    const point = {...point};
+    return point;
+  };
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.#setDatepicker();
+    this.setRollupBtnClickHandler(this._callback.rollupBtnClick);
+    this.setCancelBtnClickHandler(this._callback.cancelBtnClick);
+   }; 
 
 }
