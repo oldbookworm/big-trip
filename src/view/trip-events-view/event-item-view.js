@@ -1,6 +1,7 @@
 import AbstractView from '../../framework/view/abstract-view.js';
-import {getEventDate, getDateDifference, getOfferById} from '../../util.js';
-import { OFFER_BY_TYPE } from '../../mock/mock-data.js';
+import { getFullDate, getEventDate, getTime, getDateTime, getDateDifference, } from '../../util/date-util.js';
+import { getOfferById } from '../../util/offers-util.js';
+
 
 const createOfferTemplate = (id, type) => {
   const offer = getOfferById(id, type);
@@ -18,16 +19,14 @@ const createOfferTemplate = (id, type) => {
 const createEventItemTemplate = (point) => { 
   const {basePrice, dateFrom, dateTo, destination: {name}, type, offers, isFavorite} = point;
 
-  const date = dateFrom.slice(0, 10);
-  const startDate = dateFrom.slice(0, 16);
-  const endDate = dateTo.slice(0, 16);
-  const duration = getDateDifference (startDate, endDate);
+  const duration = getDateDifference(dateFrom, dateTo);
+  
 
   return (
   `<li class="trip-events__item">
     <div class="event">
 
-      <time class="event__date" datetime="${date}">${getEventDate(date)}</time>
+      <time class="event__date" datetime="${getFullDate(dateFrom)}">${getEventDate(dateFrom)}</time>
 
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
@@ -37,9 +36,9 @@ const createEventItemTemplate = (point) => {
 
       <div class="event__schedule">
         <p class="event__time">
-          <time class="event__start-time" datetime="${startDate}">${startDate.slice(11, 16)}</time>
+          <time class="event__start-time" datetime="${getDateTime(dateFrom)}">${getTime(dateFrom)}</time>
           &mdash;
-          <time class="event__end-time" datetime="${endDate}">${endDate.slice(11, 16)}</time>
+          <time class="event__end-time" datetime="${getDateTime(dateTo)}">${getTime(dateTo)}</time>
         </p>
         <p class="event__duration">${duration}</p>
       </div>
@@ -90,6 +89,17 @@ export default class EventItemView extends AbstractView {
   #editClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.editClick();
+  };
+
+  setFavoriteClickHandler = (callback) => {
+    this._callback.favoriteClick = callback;
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#favoriteClickHandler);
+  };
+
+  
+ #favoriteClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.favoriteClick();
   };
 
 }
