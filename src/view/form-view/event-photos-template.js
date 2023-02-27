@@ -9,7 +9,7 @@ export const createEventPhotosTemplate = (pictures) => {
     return (
 	`<div class="event__photos-container">
         <div class="event__photos-tape">
-          ${pictures.map((picture) => createPhotoTemplate(picture)).join('')};
+          ${pictures.map((picture) => createPhotoTemplate(picture)).join('')}
         </div>
       </div>`
 	);
