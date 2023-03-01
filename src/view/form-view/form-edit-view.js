@@ -1,6 +1,7 @@
 import {createFormHeaderTemplate} from './form-header-template.js';
 import {createEventDetailsTemplate} from './form-event-details-template';
 import { DESTINATIONS } from '../../mock/mock-data.js';
+import { OFFER_BY_TYPE } from '../../mock/mock-data.js';
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
 
 import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
@@ -8,7 +9,6 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 const createFormPopupTemplate = (point) => {
-
   return (
   `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
@@ -116,9 +116,15 @@ export default class FormEditView extends AbstractStatefulView {
 	    elem.addEventListener('click', this.#eventTypeChangeHandler);
     });
 
+    // this.element.querySelectorAll('.event__offer-label').forEach((elem) => {
+	  //   elem.addEventListener('click', (evt) => {
+    //     evt.stopPropagation();
+    //     this.#offerCheckHandler(evt);
+    //   });
+    // });
+
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#eventDestinationChangeHandler);
   }
-
 
   #eventTypeChangeHandler = (evt) => {
     this.updateElement({
@@ -138,11 +144,11 @@ export default class FormEditView extends AbstractStatefulView {
     });
   };
 
-
-  static parsePointToState = (point) => ({...point});
+  
+static parsePointToState = (point) => ({...point});
 
   static parseStateToPoint = (state) => {
-    const point = {...point};
+    const point = {...state};
     return point;
   };
 
@@ -152,6 +158,6 @@ export default class FormEditView extends AbstractStatefulView {
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setFormCloseBtnClickHandler(this._callback.formCloseClick);
     this.setDeleteBtnClickHandler(this._callback.deleteBtnClick);	
-   };  
+   }; 
 
 }
