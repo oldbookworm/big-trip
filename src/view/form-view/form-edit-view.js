@@ -116,15 +116,39 @@ export default class FormEditView extends AbstractStatefulView {
 	    elem.addEventListener('click', this.#eventTypeChangeHandler);
     });
 
-    // this.element.querySelectorAll('.event__offer-label').forEach((elem) => {
-	  //   elem.addEventListener('click', (evt) => {
-    //     evt.stopPropagation();
-    //     this.#offerCheckHandler(evt);
-    //   });
-    // });
+    this.element.querySelectorAll('.event__offer-label').forEach((elem) => {
+	    elem.addEventListener('click', (evt) => {
+        evt.preventDefault();
+        this.#offerCheckHandler(evt);
+      });
+    });
 
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#eventDestinationChangeHandler);
   }
+
+#offerCheckHandler = (evt) => { 
+    const checkedOfferId =  evt.currentTarget.getAttribute('data-id');
+    const offers = this._state.offers;
+    const newOffers = this.#changeOffersArr(offers, checkedOfferId);
+    
+    this.updateElement({
+      offers: newOffers,
+    });
+}
+
+#changeOffersArr = (offers, checkedOfferId) => {
+  let newArray = offers;
+  const offerInArr = offers.find((elem) => elem === +checkedOfferId);
+    if(offerInArr) { 
+      let index = offers.indexOf(offerInArr);
+      if (index !== -1) {
+        newArray.splice(index, 1);
+      }
+    } else {
+      newArray.push(+checkedOfferId);
+  }
+  return newArray;
+}
 
   #eventTypeChangeHandler = (evt) => {
     this.updateElement({
@@ -147,10 +171,10 @@ export default class FormEditView extends AbstractStatefulView {
   
 static parsePointToState = (point) => ({...point});
 
-  static parseStateToPoint = (state) => {
-    const point = {...state};
-    return point;
-  };
+static parseStateToPoint = (state) => {
+  const point = {...state};
+  return point;
+};
 
   _restoreHandlers = () => {
     this.#setInnerHandlers();

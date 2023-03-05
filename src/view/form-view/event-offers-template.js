@@ -7,8 +7,8 @@ const createEventOffer = (type, offers) => {
   allOffers.offers.map((offer) => {
     const checked = offers.includes(offer.id) ? 'checked' : '';
     const elem = `<div class="event__offer-selector">
-    <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage"  ${checked}>
-    <label class="event__offer-label" for="event-offer-luggage-1">
+    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.type}-${offer.id}" type="checkbox" name="event-offer-${offer.type}" ${checked}>
+    <label class="event__offer-label" for="event-offer-${offer.type}-${offer.id}" data-id=${offer.id}>
       <span class="event__offer-title">${offer.title}</span>
       &plus;&euro;&nbsp;
       <span class="event__offer-price">${offer.price}</span>
