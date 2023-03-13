@@ -1,23 +1,18 @@
 
-// функция отслеживания обновлений
+const UserAction = {
+  UPDATE_POINT: 'UPDATE_POINT',
+  ADD_POINT: 'ADD_POINT',
+  DELETE_POINT: 'DELETE_POINT',
+};
 
-  const updateItem = (items, update) => {
-    const index = items.findIndex((item) => item.id === update.id);
-  
-    if (index === -1) {
-      return items;
-    }
-  
-    return [
-      ...items.slice(0, index),
-      update,
-      ...items.slice(index + 1),
-    ];
-  };
-
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
 
   
   
  
 
-export {updateItem};
+export {UserAction, UpdateType};
