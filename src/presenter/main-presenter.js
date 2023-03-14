@@ -5,26 +5,23 @@ import EmptyPageView from '../view/empty-page-view.js';
 import NewEventBtnView from '../view/new-event-btn-view.js';
 import PointPresenter from './point-presenter.js';
 import NewFormPresenter from './new-form-presenter.js';
-import { updateItem } from '../util/main-util.js';
 import { SORT_TYPE, sortByTime, sortByPrice } from '../util/sort-util.js';
 import {render,  RenderPosition} from '../framework/render.js';
+import { UpdateType, UserAction } from '../util/main-util.js';
 
 
 export default class MainPresenter {
 	#container = null;
 	#headerInfoContainer = null;
   	#pointsModel = null;
-	#points = [];
-
+	
 	#eventsListComponent = new EventsListView();
 	#sortComponent = new SortView();
 	#emptyPageComponent = new EmptyPageView();
 	#tripInfoComponent = new TripInfoView();
 	#newEventBtnComponent = new NewEventBtnView();
-
 	#pointPresenter = new Map();
 	#currentSortType = SORT_TYPE.DEFAULT;
-	#sourcedPoints = [];
 	#newFormPresenter = null;
 
 	
@@ -32,12 +29,23 @@ export default class MainPresenter {
 		this.#container = container;
 		this.#headerInfoContainer = headerInfoContainer;
 		this.#pointsModel = pointsModel;
+
+		this.#pointsModel.addObserver(this.#handleModelEvent);
+	}
+
+	get points() {
+		switch (this.#currentSortType) {
+		 case SORT_TYPE.TIME:
+			return [...this.#pointsModel.points].sort(sortByTime);
+		 case SORT_TYPE.PRICE:
+			return [...this.#pointsModel.points].sort(sortByPrice);        
+		}
+
+		return this.#pointsModel.points;
 	}
 
 	init = () => {	
-		this.#points = [...this.#pointsModel.points];
-		this.#sourcedPoints = [...this.#pointsModel.points];
-		this.#renderPointBoard();
+		this.#renderPointBoard(this.points);
 	}
 	
 	// рендерит основу страницы
@@ -45,26 +53,50 @@ export default class MainPresenter {
 		this.#renderNewEventBtn();
     	this.#renderEventsList();
 
-		if(this.#points.length === 0) {
+		if(this.points.length === 0) {
 			this.#renderEmptyPage();
 		} else {
 			this.#renderTripInfo();
 			this.#renderSort();
-			this.#renderPoints();
+			this.#renderPoints(this.points);
 		}		
 		
 		this.#newEventBtnComponent.setNewBtnClickHandler(this.#addNewForm);
    };
 
-//    обновление пойнта
-   #pointChangeHandler = (updatedPoint) => {
-    	this.#points = updateItem(this.#points, updatedPoint);
-    	this.#pointPresenter.get(updatedPoint.id).init(updatedPoint);
-  	};
-
 	// смена мода для сортировки
 	#handleModeChange = () => {
 		this.#pointPresenter.forEach((presenter) => presenter.resetView());
+	};
+
+	#handleViewAction = (actionType, updateType, update) => {
+		switch (actionType) {
+			case UserAction.UPDATE_POINT:
+			  this.#pointsModel.updatePoint(updateType, update);
+			  break;
+			case UserAction.ADD_POINT:
+			  this.#pointsModel.addPoint(updateType, update);
+			  break;
+			case UserAction.DELETE_TASK:
+			  this.#pointsModel.deletePoint(updateType, update);
+			  break;
+		}
+	};
+	
+	#handleModelEvent = (updateType, data) => {
+		switch (updateType) {
+			case UpdateType.PATCH:
+			  this.#pointPresenter.get(data.id).init(data);
+			  break;
+			case UpdateType.MINOR:
+				this.#clearPointList();
+				this.#renderPoints(points);
+			  break;
+			case UpdateType.MAJOR:
+				this.#clearPointList();
+				this.#renderPoints(points);
+			  break;
+		  }
 	};
 
 	// сортировка
@@ -72,9 +104,9 @@ export default class MainPresenter {
 		if (this.#currentSortType === sortType) {
 			return;
 		}
-		this.#sortPoints(sortType);
+		this.#currentSortType = sortType;
 		this.#clearPointList();
-		this.#renderPoints();
+		this.#renderPoints(this.points);
 	};
 
 	// открытие формы add new
@@ -122,15 +154,13 @@ export default class MainPresenter {
 		this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
 	}
 	  
-	#renderPoints = () => {
-		for (let i = 0; i < this.#points.length; i++) {
-			this.#renderPoint(this.#points[i]);
-		}	
+	#renderPoints = (points) => {
+		points.forEach((point) => this.#renderPoint(point));
 	}
 
 	// создание презентера пойнта
 	#renderPoint = (point) => {
-    	const pointPresenter = new PointPresenter(this.#eventsListComponent.element, this.#pointChangeHandler, this.#handleModeChange);
+    	const pointPresenter = new PointPresenter(this.#eventsListComponent.element, this.#handleViewAction, this.#handleModeChange);
    		pointPresenter.init(point);
 		this.#pointPresenter.set(point.id, pointPresenter);
   	};
@@ -140,23 +170,5 @@ export default class MainPresenter {
    	 	this.#pointPresenter.forEach((presenter) => presenter.destroy());
     	this.#pointPresenter.clear();
   	};
-
-
-	// смена типа сортировки
-  	#sortPoints = (sortType) => {
-   	 switch (sortType) {
-      	case SORT_TYPE.TIME:
-        	this.#points.sort(sortByTime);
-        	break;
-      	case SORT_TYPE.PRICE:
-        	this.#points.sort(sortByPrice);
-        	break;
-      	default:
-        	this.#points = [...this.#sourcedPoints];
-    	}
-
-    	this.#currentSortType = sortType;
-  };
-
 
 }
