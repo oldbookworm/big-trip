@@ -1,6 +1,7 @@
 import EventItemView from '../view/trip-events-view/event-item-view.js';
 import FormEditView from '../view/form-view/form-edit-view.js';
 import {render, replace, remove} from '../framework/render.js';
+import { UserAction, UpdateType } from '../util/main-util.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -84,12 +85,20 @@ export default class PointPresenter {
       };
 
     #handleFavoriteClick = () => {
-        this.#changeData({...this.#point, isFavorite: !this.#point.isFavorite});
+      this.#changeData(
+        UserAction.UPDATE_TASK,
+        UpdateType.MINOR,
+        {...this.#point, isFavorite: !this.#point.isFavorite}
+      );
     };
     
     #handleFormSubmit = (point) => {
       evt.preventDefault();
-      this.#changeData(point);
+      this.#changeData(
+        UserAction.UPDATE_TASK,
+        UpdateType.MINOR,
+        point,
+      );
       this.#handleCloseForm();    
    };
 
