@@ -97,4 +97,12 @@ const beautifyPopupDate = (data) => {
     return `${date} ${time}`
 }
 
-export {getFullDate, getEventDate, getTime, getDateTime, getDateDifference, getDuration, beautifyPopupDate};
+
+// функции для фильтров
+// дата пойнта в будущем относительно реальной даты
+const isFuturePoint = (date) => dayjs().isBefore(date);
+// дата пойнта в прошлом (истекло) относительно реальной даты
+const isPastPoint = (date) => dayjs().isAfter(date);
+
+
+export {getFullDate, getEventDate, getTime, getDateTime, getDateDifference, getDuration, beautifyPopupDate, isFuturePoint, isPastPoint};
