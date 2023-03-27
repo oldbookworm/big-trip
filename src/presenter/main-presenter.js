@@ -2,55 +2,69 @@ import TripInfoView from '../view/trip-info-view.js';
 import SortView from '../view/sort-view.js';
 import EventsListView from '../view/trip-events-view/events-list-view.js'
 import EmptyPageView from '../view/empty-page-view.js';
-import NewEventBtnView from '../view/new-event-btn-view.js';
 import PointPresenter from './point-presenter.js';
 import NewFormPresenter from './new-form-presenter.js';
 import { SORT_TYPE, sortByTime, sortByPrice } from '../util/sort-util.js';
-import {render,  RenderPosition} from '../framework/render.js';
+import {render, remove,  RenderPosition} from '../framework/render.js';
 import { UpdateType, UserAction } from '../util/main-util.js';
+import { filter, FilterType } from '../util/filter-util.js';
 
 
 export default class MainPresenter {
 	#container = null;
 	#headerInfoContainer = null;
   	#pointsModel = null;
+	#filterModel = null;
 	
 	#eventsListComponent = new EventsListView();
-	#sortComponent = new SortView();
-	#emptyPageComponent = new EmptyPageView();
+	#sortComponent = null;
+	#emptyPageComponent = null;
 	#tripInfoComponent = new TripInfoView();
-	#newEventBtnComponent = new NewEventBtnView();
 	#pointPresenter = new Map();
 	#currentSortType = SORT_TYPE.DEFAULT;
+	#filterType = FilterType.EVERYTHING;
 	#newFormPresenter = null;
 
 	
-	constructor(container, headerInfoContainer, pointsModel) {
+	constructor(container, headerInfoContainer, pointsModel, filterModel) {
 		this.#container = container;
 		this.#headerInfoContainer = headerInfoContainer;
 		this.#pointsModel = pointsModel;
+		this.#filterModel = filterModel;
+
+		this.#newFormPresenter = new NewFormPresenter(this.#eventsListComponent.element,  this.#handleViewAction);
 
 		this.#pointsModel.addObserver(this.#handleModelEvent);
+		this.#filterModel.addObserver(this.#handleModelEvent);
 	}
 
 	get points() {
+		this.#filterType = this.#filterModel.filter;
+    	const points = this.#pointsModel.points;
+    	const filteredPoints = filter[this.#filterType](points);
+
 		switch (this.#currentSortType) {
 		 case SORT_TYPE.TIME:
-			return [...this.#pointsModel.points].sort(sortByTime);
+			return filteredPoints.sort(sortByTime);
 		 case SORT_TYPE.PRICE:
-			return [...this.#pointsModel.points].sort(sortByPrice);        
+			return filteredPoints.sort(sortByPrice);        
 		}
 
-		return this.#pointsModel.points;
+		return filteredPoints;
 	}
 
 	init = () => {	
 		this.#renderPointBoard(this.points);
 	}
+
+	createTask = (callback) => {
+		this.#currentSortType = SORT_TYPE.DEFAULT;
+		this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+		this.#newFormPresenter.init(callback);
+	};
 	
 	// рендерит основу страницы
 	#renderPointBoard = () => {
-		this.#renderNewEventBtn();
     	this.#renderEventsList();
 
 		if(this.points.length === 0) {
@@ -60,12 +74,13 @@ export default class MainPresenter {
 			this.#renderSort();
 			this.#renderPoints(this.points);
 		}		
-		
-		this.#newEventBtnComponent.setNewBtnClickHandler(this.#addNewForm);
    };
+
+   
 
 	// смена мода для сортировки
 	#handleModeChange = () => {
+		this.#newFormPresenter.destroy();
 		this.#pointPresenter.forEach((presenter) => presenter.resetView());
 	};
 
@@ -90,11 +105,11 @@ export default class MainPresenter {
 			  break;
 			case UpdateType.MINOR:
 				this.#clearPointList();
-				this.#renderPoints(points);
+				this.#renderPoints(this.points);
 			  break;
 			case UpdateType.MAJOR:
-				this.#clearPointList();
-				this.#renderPoints(points);
+				this.#clearPointBoard();
+				this.#renderPointBoard(this.points);
 			  break;
 		  }
 	};
@@ -109,39 +124,15 @@ export default class MainPresenter {
 		this.#renderPoints(this.points);
 	};
 
-	// открытие формы add new
-	#addNewForm = () => {
-		if(!this.#newFormPresenter) {
-			this.#newFormPresenter = new NewFormPresenter(this.#eventsListComponent.element, this.#removeNewForm, this.#removeOnEsc);
-		}
-		this.#newFormPresenter.init();
-	  }
-	
-	// закрытие формы add new
-	#removeNewForm = () => {
-		this.#newFormPresenter.destroy();
-		this.#newFormPresenter = null;
-	}
-	
-	#removeOnEsc = (evt) => {
-		if (evt.key === 'Escape' || evt.key === 'Esc') {
-			evt.preventDefault();
-			this.#removeNewForm();
-			document.removeEventListener('keydown', this.#removeOnEsc);
-		}
-	}
-
 
 	// рендер простых элементов
-   #renderNewEventBtn = () => {
-    	render(this.#newEventBtnComponent, this.#headerInfoContainer);
-  	}
-
+   
 	#renderEventsList = () => {
 		render(this.#eventsListComponent, this.#container);
 	}
 	  
 	#renderEmptyPage = () => {
+		this.#emptyPageComponent = new EmptyPageView(this.#filterType);
 		render(this.#emptyPageComponent, this.#container);
 	}
 	  
@@ -150,6 +141,7 @@ export default class MainPresenter {
 	}
 	
 	#renderSort = () => {
+		this.#sortComponent = new SortView();
 		render(this.#sortComponent, this.#container, RenderPosition.AFTERBEGIN);
 		this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
 	}
@@ -170,5 +162,15 @@ export default class MainPresenter {
    	 	this.#pointPresenter.forEach((presenter) => presenter.destroy());
     	this.#pointPresenter.clear();
   	};
+
+	// метод для обновления доски
+
+	#clearPointBoard = () => {
+		this.#clearPointList();
+		remove(this.#sortComponent);
+		if (this.#emptyPageComponent) {
+			remove(this.#emptyPageComponent);
+		}
+	};
 
 }
