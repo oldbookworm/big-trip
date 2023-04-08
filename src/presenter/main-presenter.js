@@ -2,6 +2,7 @@ import TripInfoView from '../view/trip-info-view.js';
 import SortView from '../view/sort-view.js';
 import EventsListView from '../view/trip-events-view/events-list-view.js'
 import EmptyPageView from '../view/empty-page-view.js';
+import LoadingView from '../view/loading-view.js';
 import PointPresenter from './point-presenter.js';
 import NewFormPresenter from './new-form-presenter.js';
 import { SORT_TYPE, sortByTime, sortByPrice } from '../util/sort-util.js';
@@ -20,10 +21,13 @@ export default class MainPresenter {
 	#sortComponent = null;
 	#emptyPageComponent = null;
 	#tripInfoComponent = new TripInfoView();
+	#loadingComponent = new LoadingView();
 	#pointPresenter = new Map();
 	#currentSortType = SORT_TYPE.DEFAULT;
 	#filterType = FilterType.EVERYTHING;
+	#isLoading = true;
 	#newFormPresenter = null;
+
 
 	
 	constructor(container, headerInfoContainer, pointsModel, filterModel) {
@@ -32,7 +36,7 @@ export default class MainPresenter {
 		this.#pointsModel = pointsModel;
 		this.#filterModel = filterModel;
 
-		this.#newFormPresenter = new NewFormPresenter(this.#eventsListComponent.element,  this.#handleViewAction);
+		this.#newFormPresenter = new NewFormPresenter(this.#eventsListComponent.element,  this.#handleViewAction, this.allOffers, this.destinations);
 
 		this.#pointsModel.addObserver(this.#handleModelEvent);
 		this.#filterModel.addObserver(this.#handleModelEvent);
@@ -53,6 +57,17 @@ export default class MainPresenter {
 		return filteredPoints;
 	}
 
+
+	get allOffers() {
+		const allOffers = this.#pointsModel.offersByType;
+		return allOffers;
+	}
+
+	get destinations() {
+		const destinations = this.#pointsModel.destinations;
+		return destinations;
+	}
+
 	init = () => {	
 		this.#renderPointBoard(this.points);
 	}
@@ -66,6 +81,11 @@ export default class MainPresenter {
 	// рендерит основу страницы
 	#renderPointBoard = () => {
     	this.#renderEventsList();
+
+		if (this.#isLoading) {
+			this.#renderLoading();
+			return;
+		}
 
 		if(this.points.length === 0) {
 			this.#renderEmptyPage();
@@ -111,6 +131,11 @@ export default class MainPresenter {
 				this.#clearPointBoard();
 				this.#renderPointBoard(this.points);
 			  break;
+			case UpdateType.INIT:
+				this.#isLoading = false;
+				remove(this.#loadingComponent);
+				this.#renderPointBoard(this.points);;
+			  break;  
 		  }
 	};
 
@@ -127,6 +152,10 @@ export default class MainPresenter {
 
 	// рендер простых элементов
    
+	#renderLoading = () => {
+		render(this.#loadingComponent, this.#eventsListComponent.element, RenderPosition.AFTERBEGIN);
+	  };
+
 	#renderEventsList = () => {
 		render(this.#eventsListComponent, this.#container);
 	}
@@ -152,7 +181,7 @@ export default class MainPresenter {
 
 	// создание презентера пойнта
 	#renderPoint = (point) => {
-    	const pointPresenter = new PointPresenter(this.#eventsListComponent.element, this.#handleViewAction, this.#handleModeChange);
+    	const pointPresenter = new PointPresenter(this.#eventsListComponent.element, this.#handleViewAction, this.#handleModeChange, this.allOffers, this.destinations);
    		pointPresenter.init(point);
 		this.#pointPresenter.set(point.id, pointPresenter);
   	};
@@ -168,6 +197,7 @@ export default class MainPresenter {
 	#clearPointBoard = () => {
 		this.#clearPointList();
 		remove(this.#sortComponent);
+		remove(this.#loadingComponent);
 		if (this.#emptyPageComponent) {
 			remove(this.#emptyPageComponent);
 		}
