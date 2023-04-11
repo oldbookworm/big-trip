@@ -17,12 +17,17 @@ export default class PointPresenter {
     #changeData = null;
     #changeMode = null;
 
+    #offersByType = null;
+    #destinations = null;
+
     #mode = Mode.DEFAULT;
     
-    constructor(pointsContainer, changeData, changeMode) {
+    constructor(pointsContainer, changeData, changeMode, offersByType, destinations) {
       this.#pointsContainer = pointsContainer;
       this.#changeData = changeData;
       this.#changeMode = changeMode;
+      this.#offersByType = offersByType;
+      this.#destinations = destinations;
     }
     
     init = (point) => {
@@ -31,8 +36,8 @@ export default class PointPresenter {
       const prevPointComponent = this.#pointComponent;
       const prevFormEditComponent = this.#formEditComponent;
       
-      this.#pointComponent = new EventItemView(point);
-      this.#formEditComponent = new FormEditView(point);
+      this.#pointComponent = new EventItemView(point, this.#offersByType);
+      this.#formEditComponent = new FormEditView(point, this.#offersByType, this.#destinations);
 
       this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
       
