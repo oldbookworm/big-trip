@@ -1,10 +1,11 @@
-import { OFFER_BY_TYPE } from "../../mock/mock-data";
+// import { OFFER_BY_TYPE } from "../../mock/mock-data";
 
-const createEventOffer = (type, offers) => {
-  const allOffers = OFFER_BY_TYPE.find((offer) => offer.type === type);
+const createEventOffer = (type, offers, allOffers) => {
+  const allTypeOffers = allOffers.find((offer) => offer.type === type);
+  console.log(allTypeOffers);
   const offersArr = [];
 
-  allOffers.offers.map((offer) => {
+  allTypeOffers.offers.map((offer) => {
     const checked = offers.includes(offer.id) ? 'checked' : '';
     const elem = `<div class="event__offer-selector">
     <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.type}-${offer.id}" type="checkbox" name="event-offer-${offer.type}" ${checked}>
@@ -21,13 +22,13 @@ const createEventOffer = (type, offers) => {
 }
 
 
-export const createEventOffersTemplate = (offers, type) => {
+export const createEventOffersTemplate = (offers, type, allOffers) => {
 	return (
 	`<section class="event__section  event__section--offers">
       <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
       <div class="event__available-offers">
-      ${createEventOffer(type, offers).join('')}
+      ${createEventOffer(type, offers, allOffers).join('')}
       </div>
     </section>`
 	);
