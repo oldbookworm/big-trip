@@ -1,21 +1,19 @@
 import {createFormHeaderTemplate} from './form-header-template.js';
 import {createEventDetailsTemplate} from './form-event-details-template';
-import { DESTINATIONS } from '../../mock/mock-data.js';
-import { OFFER_BY_TYPE } from '../../mock/mock-data.js';
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
 
 import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
-const createFormPopupTemplate = (point) => {
+const createFormPopupTemplate = (point, allOffers) => {
   return (
   `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
 
   ${createFormHeaderTemplate(point, 'Delete')}
   
-  ${createEventDetailsTemplate(point)}
+  ${createEventDetailsTemplate(point, allOffers)}
 
     </form> 
   </li>`
@@ -24,16 +22,20 @@ const createFormPopupTemplate = (point) => {
 
 export default class FormEditView extends AbstractStatefulView {
   #datepicker = null;
+  #allOffers = null;
+  #destinations = null;
 
-  constructor(point) {
+  constructor(point, allOffers, destinations) {
     super();
+    this.#allOffers = allOffers;
+    this.#destinations = destinations;
     this._state = FormEditView.parsePointToState(point);
     this.#setInnerHandlers();
     this.#setDatepicker();
   }
 
   get template() {
-    return createFormPopupTemplate(this._state);
+    return createFormPopupTemplate(this._state, this.#allOffers);
   }
 
   removeElement = () => {
@@ -78,7 +80,7 @@ export default class FormEditView extends AbstractStatefulView {
 
   #deleteBtnClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.deleteBtnClick();
+    this._callback.deleteBtnClick(FormEditView.parseStateToPoint(this._state));
   };
 
   #dueDateChangeHandler = (start, end) => {
@@ -157,7 +159,7 @@ export default class FormEditView extends AbstractStatefulView {
   };
 
   #eventDestinationChangeHandler = (evt) => {
-    const newDestination = DESTINATIONS.find((elem) => elem.name === evt.target.value);
+    const newDestination = this.#destinations.find((elem) => elem.name === evt.target.value);
     
     this.updateElement({
       destination: {
