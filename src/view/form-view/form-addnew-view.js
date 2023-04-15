@@ -1,21 +1,22 @@
 import {createFormHeaderTemplate} from './form-header-template.js';
 import {createEventDetailsTemplate} from './form-event-details-template';
-import { DESTINATIONS } from '../../mock/mock-data.js';
+// import { DESTINATIONS } from '../../mock/mock-data.js';
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
 
 import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
-const BASIC_POINT = {
-  basePrice: '',
-  dateFrom: '2023-07-10T22:55:56.845Z',
-  dateTo: "2023-07-11T11:22:13.375Z",
-  destination: DESTINATIONS[0],
-  id: 1,
-  offers: [],
-  type:  'taxi',     
- }
+// const BASIC_POINT = {
+//   basePrice: '',
+//   dateFrom: '2023-07-10T22:55:56.845Z',
+//   dateTo: "2023-07-11T11:22:13.375Z",
+//   destination: DESTINATIONS[0],
+//   id: 1,
+//   offers: [],
+//   type:  'taxi',     
+//  }
+
 
 
 const createFormPopupTemplate = (point) => (
@@ -34,9 +35,13 @@ const createFormPopupTemplate = (point) => (
 
 export default class FormAddNewView extends AbstractStatefulView {
   #datepicker = null;
+  #allOffers = null;
+  #destinations = null;
   
-  constructor(point = BASIC_POINT) {
+  constructor(point = BASIC_POINT, allOffers, destinations) {
     super();
+    this.#allOffers = allOffers;
+    this.#destinations = destinations;
     this._state = FormAddNewView.parsePointToState(point);
     this.#setInnerHandlers();
     this.#setDatepicker();
@@ -65,6 +70,20 @@ export default class FormAddNewView extends AbstractStatefulView {
     evt.preventDefault();
     this._callback.cancelBtnClick();
   };
+
+
+  // добавление новой точки
+  setSubmitNewPointHandler = (callback) => {
+    this._callback.submitNewPoint = callback;
+    this.element.querySelector('.event__save-btn').addEventListener('click', this.#submitNewPointHandler);
+  };
+  
+  #submitNewPointHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.submitNewPoint(FormAddNewView.parseStateToPoint(this._state));
+  };
+
+
 
   #dueDateChangeHandler = (start, end) => {
     this.updateElement({
@@ -122,7 +141,7 @@ export default class FormAddNewView extends AbstractStatefulView {
   static parsePointToState = (point) => ({...point});
 
   static parseStateToPoint = (state) => {
-    const point = {...point};
+    const point = {...state};
     return point;
   };
 
@@ -131,6 +150,7 @@ export default class FormAddNewView extends AbstractStatefulView {
     this.#setDatepicker();
     this.setRollupBtnClickHandler(this._callback.rollupBtnClick);
     this.setCancelBtnClickHandler(this._callback.cancelBtnClick);
+    this.setSubmitNewPointHandler(this._callback.submitNewPoint);
    }; 
 
 }
