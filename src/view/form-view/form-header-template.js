@@ -1,4 +1,5 @@
 import { beautifyPopupDate } from "../../util/date-util";
+import he from 'he';
 
 
 export const createFormHeaderTemplate = (point, btn) => {
@@ -73,7 +74,7 @@ export const createFormHeaderTemplate = (point, btn) => {
      	<label class="event__label  event__type-output" for="event-destination-1">
        ${type}
       	</label>
-      	<input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
+      	<input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(name)}" list="destination-list-1">
       	<datalist id="destination-list-1">
         	<option value="Amsterdam"></option>
         	<option value="Geneva"></option>
@@ -97,7 +98,7 @@ export const createFormHeaderTemplate = (point, btn) => {
         <span class="visually-hidden">Price</span>
         &euro;
       </label>
-      <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+      <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(basePrice.toString())}">
     </div>
 
     <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
