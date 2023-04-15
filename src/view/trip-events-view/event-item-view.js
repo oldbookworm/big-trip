@@ -3,8 +3,8 @@ import { getFullDate, getEventDate, getTime, getDateTime, getDateDifference, } f
 import { getOfferById } from '../../util/offers-util.js';
 
 
-const createOfferTemplate = (id, type) => {
-  const offer = getOfferById(id, type);
+const createOfferTemplate = (id, type, allOffers) => {
+  const offer = getOfferById(id, type, allOffers);
   const {title, price} = offer;
   return (
   `<li class="event__offer">
@@ -16,7 +16,7 @@ const createOfferTemplate = (id, type) => {
 };
 
 
-const createEventItemTemplate = (point) => { 
+const createEventItemTemplate = (point, allOffers) => { 
   const {basePrice, dateFrom, dateTo, destination: {name}, type, offers, isFavorite} = point;
 
   const duration = getDateDifference(dateFrom, dateTo);
@@ -51,7 +51,7 @@ const createEventItemTemplate = (point) => {
       <ul class="event__selected-offers">
       ${offers.length === 0 ?
         '' :
-        offers.map((id) => createOfferTemplate(id, type)).join('')}
+        offers.map((id) => createOfferTemplate(id, type, allOffers)).join('')}
       </ul>
 
       <button class="event__favorite-btn ${(isFavorite) ? 'event__favorite-btn--active' : ''}" type="button">
@@ -71,14 +71,16 @@ const createEventItemTemplate = (point) => {
 };
 export default class EventItemView extends AbstractView {
   #point = null;
+  #allOffers = null;
 
-  constructor(point) {
+  constructor(point, allOffers) {
     super();
     this.#point = point;
+    this.#allOffers = allOffers;
   }
 
   get template() {
-    return createEventItemTemplate(this.#point);
+    return createEventItemTemplate(this.#point, this.#allOffers);
   }
 
   setEditClickHandler = (callback) => {
