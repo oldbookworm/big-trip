@@ -7,10 +7,15 @@ export default class NewFormPresenter {
     #newFormComponent = null;
     #changeData = null;
     #destroyCallback = null;
+
+    #offersByType = null;
+    #destinations = null;
     
-    constructor(newFormContainer, changeData) {
+    constructor(newFormContainer, changeData, offersByType, destinations) {
       this.#newFormContainer = newFormContainer;
       this.#changeData = changeData;
+      this.#offersByType = offersByType;
+      this.#destinations = destinations;
     }
     
     init = (callback) => {
@@ -20,7 +25,7 @@ export default class NewFormPresenter {
         return;
       }
 
-     this.#newFormComponent = new FormAddNewView();
+     this.#newFormComponent = new FormAddNewView(this.#offersByType, this.#destinations);
      this.#newFormComponent.setSubmitNewPointHandler(this.#handleAddNewPoint);
      this.#newFormComponent.setCancelBtnClickHandler(this.#handleDeleteClick);
      this.#newFormComponent.setRollupBtnClickHandler(this.#handleDeleteClick);
