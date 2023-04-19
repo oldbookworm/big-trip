@@ -1,5 +1,4 @@
-import { OFFER_BY_TYPE } from "../mock/mock-data";
-
+// import { OFFER_BY_TYPE } from "../mock/mock-data";
 // работа с офферами
 
 
@@ -14,8 +13,8 @@ const getAllOffersIdByType = (type) => {
   }
 
 //   получает айдишник, возвращает нужный оффер
-  const getOfferById = (id, type) => {
-    const offersByType =  OFFER_BY_TYPE.find((offer) => offer.type === type);
+  const getOfferById = (id, type, allOffers) => {
+    const offersByType =  allOffers.find((offer) => offer.type === type);
     const offerById = offersByType.offers.find((elem) => elem.id === id);
     return offerById;
   }
