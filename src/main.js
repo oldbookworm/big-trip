@@ -31,7 +31,7 @@ const handleNewPointFormClose = () => {
 };
   
 const handleNewPointButtonClick = () => {
-    mainPresenter.createTask(handleNewPointFormClose);
+    mainPresenter.createPoint(handleNewPointFormClose);
     newEventBtnComponent.element.disabled = true;
 };
   
