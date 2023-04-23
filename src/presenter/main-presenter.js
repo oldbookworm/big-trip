@@ -9,7 +9,12 @@ import { SORT_TYPE, sortByTime, sortByPrice } from '../util/sort-util.js';
 import {render, remove,  RenderPosition} from '../framework/render.js';
 import { UpdateType, UserAction } from '../util/main-util.js';
 import { filter, FilterType } from '../util/filter-util.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 
+const TimeLimit = {
+	LOWER_LIMIT: 350,
+	UPPER_LIMIT: 1000,
+  };
 
 export default class MainPresenter {
 	#container = null;
@@ -27,6 +32,7 @@ export default class MainPresenter {
 	#filterType = FilterType.EVERYTHING;
 	#isLoading = true;
 	#newFormPresenter = null;
+	#uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
 
 
 	
@@ -36,7 +42,7 @@ export default class MainPresenter {
 		this.#pointsModel = pointsModel;
 		this.#filterModel = filterModel;
 
-		this.#newFormPresenter = new NewFormPresenter(this.#eventsListComponent.element,  this.#handleViewAction, this.allOffers, this.destinations);
+		// this.#newFormPresenter = new NewFormPresenter(this.#eventsListComponent.element,  this.#handleViewAction, MainPresenter.allOffers, MainPresenter.destinations);
 
 		this.#pointsModel.addObserver(this.#handleModelEvent);
 		this.#filterModel.addObserver(this.#handleModelEvent);
@@ -72,9 +78,10 @@ export default class MainPresenter {
 		this.#renderPointBoard(this.points);
 	}
 
-	createTask = (callback) => {
+	createPoint = (callback) => {
 		this.#currentSortType = SORT_TYPE.DEFAULT;
 		this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+		this.#newFormPresenter = new NewFormPresenter(this.#eventsListComponent.element,  this.#handleViewAction, this.allOffers, this.destinations);
 		this.#newFormPresenter.init(callback);
 	};
 	
@@ -100,21 +107,41 @@ export default class MainPresenter {
 
 	// смена мода для сортировки
 	#handleModeChange = () => {
-		this.#newFormPresenter.destroy();
+		if(this.#newFormPresenter != null) {
+			this.#newFormPresenter.destroy();
+		}
+		
 		this.#pointPresenter.forEach((presenter) => presenter.resetView());
 	};
 
-	#handleViewAction = (actionType, updateType, update) => {
+	#handleViewAction = async (actionType, updateType, update) => {
+		this.#uiBlocker.unblock();
+		
 		switch (actionType) {
-			case UserAction.UPDATE_POINT:
-			  this.#pointsModel.updatePoint(updateType, update);
-			  break;
-			case UserAction.ADD_POINT:
-			  this.#pointsModel.addPoint(updateType, update);
-			  break;
-			case UserAction.DELETE_TASK:
-			  this.#pointsModel.deletePoint(updateType, update);
-			  break;
+		case UserAction.UPDATE_POINT:
+        	this.#pointPresenter.get(update.id).setSaving();
+        	try {
+          		await this.#pointsModel.updatePoint(updateType, update);
+        	} catch(err) {
+          		this.#pointPresenter.get(update.id).setAborting();
+        	}
+			break;
+		case UserAction.ADD_POINT:
+        	this.#newFormPresenter.setSaving();
+        	try {
+          		await this.#pointsModel.addPoint(updateType, update);
+        	} catch(err) {
+          		this.#newFormPresenter.setAborting();
+        	}
+			break;
+		case UserAction.DELETE_TASK:
+        	this.#pointPresenter.get(update.id).setDeleting();
+        	try {
+          	await this.#pointsModel.deletePoint(updateType, update);
+        	} catch(err) {
+          	this.#pointPresenter.get(update.id).setAborting();
+        	}
+			break;
 		}
 	};
 	
