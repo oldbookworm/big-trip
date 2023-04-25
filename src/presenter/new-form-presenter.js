@@ -56,7 +56,6 @@ export default class NewFormPresenter {
         UpdateType.MINOR,
         {...point},
       );
-      this.destroy();
     };
   
   
@@ -72,5 +71,23 @@ export default class NewFormPresenter {
       }
     };
 
+    setSaving = () => {
+      this.#newFormComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    };
+
+    setAborting = () => {
+      const resetFormState = () => {
+        this.#newFormComponent.updateElement({
+          isDisabled: false,
+          isSaving: false,
+          isDeleting: false,
+        });
+      };
+  
+      this.#newFormComponent.shake(resetFormState);
+    };
 
 } 
